@@ -2,8 +2,7 @@ from nltk.tokenize import sent_tokenize
 from sentence_transformers import SentenceTransformer
 import numpy as np
 
-MODEL_PATH = "app/models/all-MiniLM-L6-v2"
-model = SentenceTransformer(MODEL_PATH)
+model = SentenceTransformer("./app/models/all-MiniLM-L6-v2")
 
 def extract_refined_snippets(sections, persona, job_description, top_n=3):
     query = persona.strip() + " " + job_description.strip()
