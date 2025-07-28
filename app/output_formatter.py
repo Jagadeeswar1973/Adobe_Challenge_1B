@@ -7,7 +7,7 @@ def format_output(input_documents, persona, job, ranked_sections, refined_snippe
             "processing_timestamp": timestamp
         },
         "extracted_sections": [],
-        "sub_section_analysis": []
+        "subsection_analysis": []
     }
 
     for sec in ranked_sections:
@@ -19,9 +19,8 @@ def format_output(input_documents, persona, job, ranked_sections, refined_snippe
         })
 
     for ref in refined_snippets:
-        output["sub_section_analysis"].append({
+        output["subsection_analysis"].append({
             "document": ref["document"],
-            "section_title": ref["section_title"],
             "refined_text": ref["refined_text"],
             "page_number": ref["page_number"]
         })

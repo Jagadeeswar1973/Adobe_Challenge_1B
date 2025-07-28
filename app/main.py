@@ -14,7 +14,14 @@ from output_formatter import format_output
 
 
 
-def run_pipeline(input_dir, persona, job_to_be_done, output_path):
+def run_pipeline(
+    input_dir,
+    persona,
+    job_to_be_done,
+    output_path,
+    top_k_sections=10,
+    top_n_snippets=3,
+):
     # Step 1: Gather all PDFs
     pdf_files = [f for f in os.listdir(input_dir) if f.lower().endswith(".pdf")]
     pdf_paths = [os.path.join(input_dir, f) for f in pdf_files]
@@ -26,10 +33,17 @@ def run_pipeline(input_dir, persona, job_to_be_done, output_path):
         all_sections.extend(sections)
 
     # Step 3: Rank the sections by semantic relevance
-    ranked_sections = rank_sections(all_sections, persona, job_to_be_done)
+    ranked_sections = rank_sections(
+        all_sections, persona, job_to_be_done, top_k=top_k_sections
+    )
 
     # Step 4: Extract refined sub-section snippets from top-ranked sections
-    refined = extract_refined_snippets(ranked_sections, persona, job_to_be_done, top_n=3)
+    refined = extract_refined_snippets(
+        ranked_sections,
+        persona,
+        job_to_be_done,
+        top_n=top_n_snippets,
+    )
 
     # Step 5: Format everything into the final output
     result_json = format_output(
@@ -38,7 +52,7 @@ def run_pipeline(input_dir, persona, job_to_be_done, output_path):
         job=job_to_be_done,
         ranked_sections=ranked_sections,
         refined_snippets=refined,
-        timestamp=datetime.utcnow().isoformat()
+        timestamp=datetime.utcnow().isoformat(),
     )
 
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -52,6 +66,25 @@ if __name__ == "__main__":
     parser.add_argument("--persona", required=True, help="Persona description")
     parser.add_argument("--job", required=True, help="Job-to-be-done description")
     parser.add_argument("--output_file", default="challenge1b_output.json")
+    parser.add_argument(
+        "--top_k",
+        type=int,
+        default=10,
+        help="Number of top sections to keep after ranking",
+    )
+    parser.add_argument(
+        "--top_snippets",
+        type=int,
+        default=3,
+        help="Number of top sections to analyze for refined snippets",
+    )
     args = parser.parse_args()
 
-    run_pipeline(args.input_dir, args.persona, args.job, args.output_file)
+    run_pipeline(
+        args.input_dir,
+        args.persona,
+        args.job,
+        args.output_file,
+        top_k_sections=args.top_k,
+        top_n_snippets=args.top_snippets,
+    )
