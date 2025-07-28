@@ -1,0 +1,110 @@
+# Challenge 1B: Multi-Collection PDF Analysis Pipeline
+
+## 🔍 Overview
+
+This solution implements an advanced PDF analysis pipeline for **Challenge 1B** of the Adobe India Hackathon 2025. It processes collections of PDF documents and extracts relevant content based on a given **persona** and a specific **job-to-be-done**.
+
+The pipeline identifies the most important sections, ranks them, and extracts key refined content from each based on semantic similarity using Sentence-BERT embeddings.
+
+---
+
+## 📁 Project Structure
+
+Abobe_Challenge_1B/
+├── app/
+│ ├── main.py # Main driver script
+│ ├── extractor.py # Extracts title/content from PDFs
+│ ├── pdf_segmenter.py # Splits PDFs into structured text
+│ ├── ranker.py # Ranks sections based on persona/task
+│ ├── output_formatter.py # Builds the output JSON format
+│ ├── download_model.py # (optional) downloads model locally
+│ └── models/
+│ └── all-MiniLM-L6-v2/ # Pre-downloaded SentenceTransformer
+├── challenge1b_input.json # Sample input
+├── Dockerfile # For containerized execution
+├── requirements.txt # Required Python packages
+├── input/ # Folder for input PDFs
+├── output/ # Folder where output JSON is written
+└── README.md # This file
+
+yaml
+Copy
+Edit
+
+---
+
+## 🔧 Technologies Used
+
+- **Python 3.10**
+- **PyMuPDF** (`fitz`) for PDF parsing
+- **Sentence-BERT** (`all-MiniLM-L6-v2`) for semantic ranking
+- **NLTK** for sentence tokenization
+- **NumPy** for vector math
+
+---
+
+## 📥 Input Format
+
+Your `challenge1b_input.json` should follow this schema:
+
+```json
+{
+  "challenge_info": {
+    "challenge_id": "round_1b_001",
+    "test_case_name": "sample_test_case"
+  },
+  "documents": [
+    { "filename": "South of France - Cuisine.pdf", "title": "Cuisine" }
+  ],
+  "persona": {
+    "role": "Food Contractor"
+  },
+  "job_to_be_done": {
+    "task": "Prepare a vegetarian buffet-style dinner menu for a corporate gathering"
+  }
+}
+Place the matching PDF files in the /input folder.
+
+📤 Output Format
+The pipeline will generate a single JSON in /output/challenge1b_output.json like this:
+
+json
+Copy
+Edit
+{
+  "metadata": {
+    "input_documents": [...],
+    "persona": "...",
+    "job_to_be_done": "..."
+  },
+  "extracted_sections": [
+    {
+      "document": "source.pdf",
+      "section_title": "Important Section",
+      "importance_rank": 1,
+      "page_number": 3
+    }
+  ],
+  "subsection_analysis": [
+    {
+      "document": "source.pdf",
+      "refined_text": "Highly relevant sentence",
+      "page_number": 3
+    }
+  ]
+}
+🐳 Docker Usage
+🏗️ Build the Image
+bash
+Copy
+Edit
+docker build --platform=linux/amd64 -t poster-pipeline .
+🚀 Run the Pipeline
+bash
+Copy
+Edit
+docker run --rm ^
+  -v %cd%\input:/app/input:ro ^
+  -v %cd%\output:/app/output ^
+  --network none ^
+  poster-pipeline
